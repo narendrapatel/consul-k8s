@@ -32,8 +32,8 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 		staticServerHostnameID  = "static-server-hostname"
 		staticServerIPID        = "static-server-ip"
 		terminatingGatewayRules = `service_prefix "static-server" {
-  policy = "write"
-}`
+		  policy = "write"
+		}`
 	)
 
 	cases := []struct {
@@ -59,7 +59,7 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 
 				"dns.enabled":           "true",
 				"dns.enableRedirection": strconv.FormatBool(cfg.EnableTransparentProxy),
-				
+
 				"global.acls.manageSystemACLs": strconv.FormatBool(c.secure),
 				"global.tls.enabled":           strconv.FormatBool(c.secure),
 				"global.tls.autoEncrypt":       strconv.FormatBool(c.secure),

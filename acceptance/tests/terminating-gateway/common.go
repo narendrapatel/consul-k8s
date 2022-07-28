@@ -19,7 +19,7 @@ const (
 func addIntention(t *testing.T, consulClient *api.Client, sourceNS, sourceService, destinationNS, destinationsService string) {
 	t.Helper()
 
-	logger.Log(t, fmt.Sprint("creating static-client => static-server intention"))
+	logger.Log(t, fmt.Sprintf("creating %s => %s intention", sourceService, destinationsService))
 	_, _, err := consulClient.ConfigEntries().Set(&api.ServiceIntentionsConfigEntry{
 		Kind:      api.ServiceIntentions,
 		Name:      destinationsService,
