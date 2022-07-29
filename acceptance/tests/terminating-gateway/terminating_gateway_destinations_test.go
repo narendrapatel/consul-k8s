@@ -60,6 +60,7 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 				"dns.enabled":           "true",
 				"dns.enableRedirection": strconv.FormatBool(cfg.EnableTransparentProxy),
 
+				"global.image":                 "dstoughhashicorp/consul-dev-destinations:6689198e2", // TODO: remove when 1.13 is released
 				"global.acls.manageSystemACLs": strconv.FormatBool(c.secure),
 				"global.tls.enabled":           strconv.FormatBool(c.secure),
 				"global.tls.autoEncrypt":       strconv.FormatBool(c.secure),

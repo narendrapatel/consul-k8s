@@ -117,7 +117,7 @@ func TestTerminatingGatewaySingleNamespace(t *testing.T) {
 				// via the static-server. It should fail to connect with the
 				// static-server pod because of intentions.
 				logger.Log(t, "testing intentions prevent connections through the terminating gateway")
-				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, staticServerLocalAddress)
+				k8s.CheckStaticServerConnectionFailing(t, nsK8SOptions, staticClientName, staticServerLocalAddress)
 
 				logger.Log(t, "adding intentions to allow traffic from client ==> server")
 				addIntention(t, consulClient, testNamespace, staticClientName, testNamespace, staticServerName)
@@ -229,7 +229,7 @@ func TestTerminatingGatewayNamespaceMirroring(t *testing.T) {
 				// via the static-server. It should fail to connect with the
 				// static-server pod because of intentions.
 				logger.Log(t, "testing intentions prevent connections through the terminating gateway")
-				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, staticServerLocalAddress)
+				k8s.CheckStaticServerConnectionFailing(t, ns2K8SOptions, staticClientName, staticServerLocalAddress)
 
 				logger.Log(t, "adding intentions to allow traffic from client ==> server")
 				addIntention(t, consulClient, StaticClientNamespace, staticClientName, testNamespace, staticServerName)
