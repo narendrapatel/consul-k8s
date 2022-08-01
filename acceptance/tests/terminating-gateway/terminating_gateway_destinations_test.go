@@ -37,17 +37,28 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 	)
 
 	cases := []struct {
-		secure bool
+		secure   bool
+		protocol string
 	}{
 		{
-			false,
+			secure:   false,
+			protocol: "tcp",
 		},
 		{
-			true,
+			secure:   true,
+			protocol: "tcp",
+		},
+		{
+			secure:   false,
+			protocol: "http",
+		},
+		{
+			secure:   true,
+			protocol: "http",
 		},
 	}
 	for _, c := range cases {
-		name := fmt.Sprintf("secure: %t", c.secure)
+		name := fmt.Sprintf("secure: %t protcol: %s", c.secure, c.protocol)
 		t.Run(name, func(t *testing.T) {
 			ctx := suite.Environment().DefaultContext(t)
 
@@ -103,8 +114,8 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 			staticServerIPURL := fmt.Sprintf("http://%s", staticServerIP)
 
 			// Create the service default declaring the external service (aka Destination)
-			createServiceDefaultDestination(t, consulClient, "", staticServerHostnameID, 443, staticServerServiceName)
-			createServiceDefaultDestination(t, consulClient, "", staticServerIPID, 80, staticServerIP)
+			createServiceDefaultDestination(t, consulClient, "", staticServerHostnameID, "", 443, staticServerServiceName)
+			createServiceDefaultDestination(t, consulClient, "", staticServerIPID, c.protocol, 80, staticServerIP)
 
 			// If ACLs are enabled, test that intentions prevent connections.
 			if c.secure {
@@ -127,7 +138,7 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 		})
 	}
 }
-func createServiceDefaultDestination(t *testing.T, consulClient *api.Client, serviceNamespace string, name string, port int, addresses ...string) {
+func createServiceDefaultDestination(t *testing.T, consulClient *api.Client, serviceNamespace string, name string, protocol string, port int, addresses ...string) {
 	t.Helper()
 
 	logger.Log(t, "creating config entry")
@@ -144,6 +155,7 @@ func createServiceDefaultDestination(t *testing.T, consulClient *api.Client, ser
 		Kind:      api.ServiceDefaults,
 		Name:      name,
 		Namespace: serviceNamespace,
+		Protocol:  protocol,
 		Destination: &api.DestinationConfig{
 			Addresses: addresses,
 			Port:      port,
