@@ -67,14 +67,10 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 				"terminatingGateways.enabled":              "true",
 				"terminatingGateways.gateways[0].name":     "terminating-gateway",
 				"terminatingGateways.gateways[0].replicas": "1",
-
-				"dns.enabled":           "true",
-				"dns.enableRedirection": strconv.FormatBool(cfg.EnableTransparentProxy),
-
-				"global.image":                 "dstoughhashicorp/consul-dev-destinations:d8528698f", // TODO: remove when 1.13 is released
-				"global.acls.manageSystemACLs": strconv.FormatBool(c.secure),
-				"global.tls.enabled":           strconv.FormatBool(c.secure),
-				"global.tls.autoEncrypt":       strconv.FormatBool(c.secure),
+				"global.image":                             "dhayachi/consul:5aff2842051", // TODO: remove when 1.13 is released
+				"global.acls.manageSystemACLs":             strconv.FormatBool(c.secure),
+				"global.tls.enabled":                       strconv.FormatBool(c.secure),
+				"global.tls.autoEncrypt":                   strconv.FormatBool(c.secure),
 			}
 
 			logger.Log(t, "creating consul cluster")
