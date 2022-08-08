@@ -14,7 +14,8 @@ import (
 	"github.com/hashicorp/consul-k8s/acceptance/framework/logger"
 )
 
-// Test that egress Destinations route through terminating gateways in transparent mode.
+// Test that egress Destinations route through terminating gateways.
+// Destinations are only valid when operating in transparent mode.
 func TestTerminatingGatewayDestinations(t *testing.T) {
 	cfg := suite.Config()
 	if !cfg.EnableTransparentProxy {
@@ -37,28 +38,17 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 	)
 
 	cases := []struct {
-		secure   bool
-		protocol string
+		secure bool
 	}{
 		{
-			secure:   false,
-			protocol: "tcp",
+			secure: false,
 		},
 		{
-			secure:   true,
-			protocol: "tcp",
-		},
-		{
-			secure:   false,
-			protocol: "http",
-		},
-		{
-			secure:   true,
-			protocol: "http",
+			secure: true,
 		},
 	}
 	for _, c := range cases {
-		name := fmt.Sprintf("secure: %t protcol: %s", c.secure, c.protocol)
+		name := fmt.Sprintf("secure: %t", c.secure)
 		t.Run(name, func(t *testing.T) {
 			ctx := suite.Environment().DefaultContext(t)
 
@@ -105,13 +95,13 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, staticServerIP)
 
-			// TODO: add http protocol test when it's merged.
-			staticServerHostnameURL := fmt.Sprintf("https://%s", staticServerServiceName)
-			staticServerIPURL := fmt.Sprintf("http://%s", staticServerIP)
+			staticServerHTTPSURL := fmt.Sprintf("https://%s", staticServerServiceName)
+			staticServerHTTPURL := fmt.Sprintf("http://%s", staticServerIP)
 
 			// Create the service default declaring the external service (aka Destination)
+			logger.Log(t, "creating tcp-based service defaults")
 			createServiceDefaultDestination(t, consulClient, "", staticServerHostnameID, "", 443, staticServerServiceName)
-			createServiceDefaultDestination(t, consulClient, "", staticServerIPID, c.protocol, 80, staticServerIP)
+			createServiceDefaultDestination(t, consulClient, "", staticServerIPID, "", 80, staticServerIP)
 
 			// If ACLs are enabled, test that intentions prevent connections.
 			if c.secure {
@@ -119,8 +109,8 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 				// via the static-server. It should fail to connect with the
 				// static-server pod because of intentions.
 				logger.Log(t, "testing intentions prevent connections through the terminating gateway")
-				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, staticServerIPURL)
-				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, "-k", staticServerHostnameURL)
+				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, staticServerHTTPURL)
+				k8s.CheckStaticServerConnectionFailing(t, ctx.KubectlOptions(t), staticClientName, "-k", staticServerHTTPSURL)
 
 				logger.Log(t, "adding intentions to allow traffic from client ==> server")
 				addIntention(t, consulClient, "", staticClientName, "", staticServerHostnameID)
@@ -129,8 +119,23 @@ func TestTerminatingGatewayDestinations(t *testing.T) {
 
 			// Test that we can make a call to the terminating gateway.
 			logger.Log(t, "trying calls to terminating gateway")
-			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, staticServerIPURL)
-			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, "-k", staticServerHostnameURL)
+			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, staticServerHTTPURL)
+			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, "-k", staticServerHTTPSURL)
+
+			// Try running some different scenarios
+			staticServerHTTPSURL = fmt.Sprintf("https://%s", staticServerIP)
+			staticServerHTTPURL = fmt.Sprintf("http://%s", staticServerIP)
+
+			// Update the service default declaring the external service (aka Destination)
+			logger.Log(t, "updating service defaults to try other scenarios")
+
+			// You can't use TLS w/ protocol set to anything L7; Envoy can't snoop the traffic when the client encrypts it
+			createServiceDefaultDestination(t, consulClient, "", staticServerHostnameID, "", 443, staticServerIP)
+			createServiceDefaultDestination(t, consulClient, "", staticServerIPID, "http", 80, staticServerIP)
+
+			logger.Log(t, "trying calls to terminating gateway")
+			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, staticServerHTTPURL)
+			k8s.CheckStaticServerConnectionSuccessful(t, ctx.KubectlOptions(t), staticClientName, "-k", "-H", "Host: static-server.default", staticServerHTTPSURL)
 		})
 	}
 }
