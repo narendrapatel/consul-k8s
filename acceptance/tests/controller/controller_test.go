@@ -28,7 +28,9 @@ const (
 
 func TestController(t *testing.T) {
 	cfg := suite.Config()
-
+	if cfg.EnableCNI {
+		t.Skipf("skipping because -enable-cni is set and controller is tested with regular tproxy")
+	}
 	cases := []struct {
 		secure      bool
 		autoEncrypt bool

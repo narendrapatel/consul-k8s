@@ -27,6 +27,8 @@ type TestFlags struct {
 
 	flagEnablePodSecurityPolicies bool
 
+	flagEnableCNI bool
+
 	flagEnableTransparentProxy bool
 
 	flagConsulImage    string
@@ -84,6 +86,10 @@ func (t *TestFlags) init() {
 
 	flag.BoolVar(&t.flagEnablePodSecurityPolicies, "enable-pod-security-policies", false,
 		"If true, the test suite will run tests with pod security policies enabled.")
+
+	flag.BoolVar(&t.flagEnableCNI, "enable-cni", false,
+		"If true, the test suite will run tests with cni enabled. "+
+			"In general, this will only run against tests that are mesh related (connect, dnx, mesh-gateway, peering, etc")
 
 	flag.BoolVar(&t.flagEnableTransparentProxy, "enable-transparent-proxy", false,
 		"If true, the test suite will run tests with transparent proxy enabled. "+
