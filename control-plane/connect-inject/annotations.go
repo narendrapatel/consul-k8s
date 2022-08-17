@@ -80,6 +80,9 @@ const (
 	annotationSidecarProxyMemoryLimit   = "consul.hashicorp.com/sidecar-proxy-memory-limit"
 	annotationSidecarProxyMemoryRequest = "consul.hashicorp.com/sidecar-proxy-memory-request"
 
+	// annotationSidecarProxyGracefulShutdown makes envoy shutdown gracefully
+	annotationSidecarProxyGracefulShutdown = "consul.hashicorp.com/sidecar-proxy-graceful-shutdown"
+
 	// annotations for consul sidecar resource limits.
 	annotationConsulSidecarCPULimit      = "consul.hashicorp.com/consul-sidecar-cpu-limit"
 	annotationConsulSidecarCPURequest    = "consul.hashicorp.com/consul-sidecar-cpu-request"
