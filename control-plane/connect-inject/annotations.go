@@ -84,6 +84,15 @@ const (
 	annotationSidecarProxyMemoryLimit   = "consul.hashicorp.com/sidecar-proxy-memory-limit"
 	annotationSidecarProxyMemoryRequest = "consul.hashicorp.com/sidecar-proxy-memory-request"
 
+	// annotation for configuring health probes for sidecar container
+	annotationSidecarProxyConfigureProbes  = "consul.hashicorp.com/sidecar-configure-probes"
+
+	// annotation makes sidecar shutdown gracefully
+	annotationSidecarProxyGracefulShutdown = "consul.hashicorp.com/sidecar-proxy-graceful-shutdown"
+
+	// annotation to hold starting of app containers till sidecar proxy is started
+	annotationSidecarProxyHoldApplicationUntilProxyStarts  = "consul.hashicorp.com/sidecar-hold-app-until-proxy-starts"
+
 	// annotations for consul sidecar resource limits.
 	annotationConsulSidecarCPULimit      = "consul.hashicorp.com/consul-sidecar-cpu-limit"
 	annotationConsulSidecarCPURequest    = "consul.hashicorp.com/consul-sidecar-cpu-request"
