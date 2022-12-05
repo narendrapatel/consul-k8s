@@ -174,7 +174,7 @@ func (w *MeshWebhook) getContainerSidecarCommand(pod corev1.Pod, multiPortSvcNam
 func (w *MeshWebhook) envoySidecarHealthProbe(pod corev1.Pod) (*corev1.Probe, error) {
 
 	configureProbe, err := strconv.ParseBool(pod.Annotations[annotationSidecarProxyConfigureProbes])
-	if err != nil || configureProbe != true {
+	if err != nil || !configureProbe {
 		return nil, err
 	}
 	probe := &corev1.Probe{
@@ -194,7 +194,7 @@ func (w *MeshWebhook) envoySidecarGracefulShutdown(pod corev1.Pod) (*corev1.Hand
 
 	grace, err := strconv.ParseBool(pod.Annotations[annotationSidecarProxyGracefulShutdown])
 
-	if err != nil || grace != true {
+	if err != nil || !grace {
 		return nil, err
 	}
 
@@ -215,7 +215,7 @@ func (w *MeshWebhook) envoySidecarHoldApplicationUntilProxyStarts(pod corev1.Pod
 
 	hold, err := strconv.ParseBool(pod.Annotations[annotationSidecarProxyHoldApplicationUntilProxyStarts])
 
-	if err != nil || hold != true {
+	if err != nil || !hold {
 		return nil, err
 	}
 		postStart := &corev1.Handler{

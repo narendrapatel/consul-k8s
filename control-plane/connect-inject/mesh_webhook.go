@@ -455,7 +455,7 @@ func (w *MeshWebhook) Handle(ctx context.Context, req admission.Request) admissi
 
 func injectSidecar(pod corev1.Pod, containers []corev1.Container, sidecar corev1.Container) []corev1.Container {
 	hold, err := strconv.ParseBool(pod.Annotations[annotationSidecarProxyHoldApplicationUntilProxyStarts])
-	if err != nil || hold != true {
+	if err != nil || !hold {
 		return append(containers, sidecar)
 	}
 	return append([]corev1.Container{sidecar}, containers...)
